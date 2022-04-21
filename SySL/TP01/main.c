@@ -14,6 +14,9 @@
         - Se recomienda el uso de funciones pertenecientes a ctype.h
         - Debe compilar en el estándar C11 o C17
         - NO debe usar funciones propias de un SO en particular
+
+    Alumno: Cano Federico Vicente
+    Curso:  K2002
 */
 
 #include <stdio.h>
