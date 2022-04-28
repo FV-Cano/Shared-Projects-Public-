@@ -10,8 +10,9 @@
 data Producto = UnProducto {
     nombreProducto :: String,
     precio :: Float
-} deriving (Show, Eq)
+} deriving (Show)
 
+-- Agrego unos productos para probar el funcionamiento de todas las funciones
 silla   :: Producto
 silla   = UnProducto "Silla" 653.99
 
@@ -24,13 +25,21 @@ mesaL   = UnProducto "Mesa Luxury Z" 789.99
 sillon  :: Producto
 sillon  = UnProducto "Super sillon de plumas sinteticas" 366.52
 
+-- Uso type alias para etiquetar tipos de datos que se van a usar en las funciones, de modo que al leerlas sean más fáciles de entender.
+type Descuento = Float
+type Cantidad = Int
+type CostoEnvio = Int
 
 -- Funciones adicionales
-calcularDescuento       :: Producto -> Float -> Float
+    {-  Intenté derivar todas las funciones en subfunciones para una mayor expresividad, ocultando detalle algorítmico. Con algunas pude hacerlo, pero con otras 
+        llegaba al punto en el que terminaba realizando funciones con el mismo detalle algorítmico que las principales, terminando con el doble de funciones y
+        un detalle algorítmico casi equivalente. -}
+
+calcularDescuento       :: Producto -> Descuento -> Float
 calcularDescuento unProducto descuento = (descuento * precio unProducto) / 100
 
-calculoPrecioYCantidad  :: Float -> Producto -> Producto
-calculoPrecioYCantidad cantidad unProducto = unProducto {precio = precio unProducto * cantidad}
+calculoPrecioYCantidad  :: Cantidad -> Producto -> Producto
+calculoPrecioYCantidad cantidad unProducto = unProducto {precio = precio unProducto * fromIntegral cantidad}
 
 contieneX               :: Producto -> Bool
 contieneX unProducto = (elem 'x' . nombreProducto $ unProducto) || (elem 'X' . nombreProducto $ unProducto)
@@ -40,14 +49,13 @@ contieneZ unProducto = (elem 'z' . nombreProducto $ unProducto) || (elem 'Z' . n
 
 -- Funciones pedidas
 
-aplicarDescuento        :: Producto -> Float -> Producto
+aplicarDescuento        :: Producto -> Descuento -> Producto
 aplicarDescuento unProducto descuento = unProducto {precio = precio unProducto - calcularDescuento unProducto descuento}
---aplicarDescuento unProducto descuento = unProducto {precio = precio unProducto - calcularDescuento unProducto $ descuento}
 
-aplicarCostoDeEnvio     :: Producto -> Float -> Producto
-aplicarCostoDeEnvio unProducto costoEnvio = unProducto {precio = precio unProducto + costoEnvio}
+aplicarCostoDeEnvio     :: Producto -> CostoEnvio -> Producto
+aplicarCostoDeEnvio unProducto costoEnvio = unProducto {precio = precio unProducto + fromIntegral costoEnvio}
 
-precioTotal             :: Producto -> Float -> Float -> Float -> Producto
+precioTotal             :: Producto -> Cantidad -> Descuento -> CostoEnvio -> Producto
 precioTotal unProducto cantidad descuento costoEnvio = unProducto {precio = precio . flip aplicarCostoDeEnvio costoEnvio . (calculoPrecioYCantidad cantidad) . aplicarDescuento unProducto $ descuento}
 
 entregaSencilla         :: String -> Bool
