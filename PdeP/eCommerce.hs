@@ -7,6 +7,8 @@
     Curso:  K2001
 -}
 
+import Data.Char
+
 data Producto = UnProducto {
     nombreProducto :: String,
     precio :: Float
@@ -41,22 +43,19 @@ calcularDescuento unProducto descuento = (descuento * precio unProducto) / 100
 calculoPrecioYCantidad  :: Cantidad -> Producto -> Producto
 calculoPrecioYCantidad cantidad unProducto = unProducto {precio = precio unProducto * fromIntegral cantidad}
 
-contieneX               :: Producto -> Bool
-contieneX unProducto = (elem 'x' . nombreProducto $ unProducto) || (elem 'X' . nombreProducto $ unProducto)
-
-contieneZ               :: Producto -> Bool
-contieneZ unProducto = (elem 'z' . nombreProducto $ unProducto) || (elem 'Z' . nombreProducto $ unProducto)
+contieneLetra           :: Char -> Producto -> Bool
+contieneLetra unaLetra unProducto = (elem . toLower $ unaLetra) . map toLower . nombreProducto $ unProducto
 
 -- Funciones pedidas
 
 aplicarDescuento        :: Producto -> Descuento -> Producto
 aplicarDescuento unProducto descuento = unProducto {precio = precio unProducto - calcularDescuento unProducto descuento}
 
-aplicarCostoDeEnvio     :: Producto -> CostoEnvio -> Producto
-aplicarCostoDeEnvio unProducto costoEnvio = unProducto {precio = precio unProducto + fromIntegral costoEnvio}
+aplicarCostoDeEnvio     :: CostoEnvio -> Producto -> Producto
+aplicarCostoDeEnvio costoEnvio unProducto = unProducto {precio = precio unProducto + fromIntegral costoEnvio}
 
 precioTotal             :: Producto -> Cantidad -> Descuento -> CostoEnvio -> Producto
-precioTotal unProducto cantidad descuento costoEnvio = unProducto {precio = precio . flip aplicarCostoDeEnvio costoEnvio . (calculoPrecioYCantidad cantidad) . aplicarDescuento unProducto $ descuento}
+precioTotal unProducto cantidad descuento costoEnvio = unProducto {precio = precio . aplicarCostoDeEnvio costoEnvio . (calculoPrecioYCantidad cantidad) . aplicarDescuento unProducto $ descuento}
 
 entregaSencilla         :: String -> Bool
 entregaSencilla unDia = even . length $ unDia
@@ -71,7 +70,7 @@ productoXL              :: Producto -> Producto
 productoXL unProducto = unProducto {nombreProducto = nombreProducto unProducto ++ " XL"}
 
 productoDeLujo          :: Producto -> Bool
-productoDeLujo unProducto = contieneX unProducto && contieneZ unProducto
+productoDeLujo unProducto = contieneLetra 'x' unProducto && contieneLetra 'z' unProducto
 
 productoCodiciado       :: Producto -> Bool
 productoCodiciado unProducto = length (nombreProducto unProducto) > 10
